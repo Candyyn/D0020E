@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 0
+    path: Assets/Photon/PhotonVoice/Demos/DemoVoiceProximityChat/Scenes/ProximityVoiceChat.unity
+    guid: 9f1cd40f49900e341843571f937a9c61
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: bed4321e900ab81438ba0983df8047ce, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 1660802c606bbe14ba3c7f990313e596, type: 2}

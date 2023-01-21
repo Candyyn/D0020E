@@ -20,7 +20,7 @@ public class RoomVoiceController : MonoBehaviourPunCallbacks
     [Header("UI Variables")]
     
     public Button JoinButton, CreateButton;
-    public Text RoomNameText, IsTalkingText, VoiceConnectedText;
+    public TMPro.TextMeshProUGUI RoomNameText, IsTalkingText, VoiceConnectedText;
 
 
     // Start is called before the first frame update

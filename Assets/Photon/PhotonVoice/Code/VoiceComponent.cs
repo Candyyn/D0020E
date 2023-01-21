@@ -23,7 +23,7 @@ namespace Photon.Voice.Unity
         protected virtual void Awake()
         {
             impl.Awake(this);
-        }   
+        }
 
         protected Voice.ILogger Logger => impl.Logger;
 

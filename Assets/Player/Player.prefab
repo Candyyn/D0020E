@@ -66,6 +66,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnedObjectPrefab: {fileID: 0}
   Head: {fileID: 8317158259501637235, guid: a3862935c61824b4bb4958ccba14e094, type: 3}
+  L_Hand: {fileID: 6052000721874462251, guid: ed4d82d630811df489f2708152b3d3e7, type: 3}
+  R_Hand: {fileID: 6052000721874462251, guid: 6562c5616949e9246bfc391225cebc98, type: 3}
 --- !u!114 &4245251546203832626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,11 +101,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1161374350868486138}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 479d4c1e3e19c7d4fbfc240510883973, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handName: 
 --- !u!1 &1161374352165261817
 GameObject:
   m_ObjectHideFlags: 0

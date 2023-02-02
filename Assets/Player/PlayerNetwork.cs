@@ -11,8 +11,12 @@ public class PlayerNetwork : NetworkBehaviour
     [SerializeField] private Transform spawnedObjectPrefab;
     private Transform spawnedObjectTransform; // Used in Update function.
     [SerializeField] private Transform Head;
+    [SerializeField] private Transform L_Hand;
+    [SerializeField] private Transform R_Hand;
 
     private GameObject headInstance;
+    private GameObject R_HandInstance;
+    private GameObject L_HandInstance;
 
     //private GameObject hololens;
     private Camera cam;
@@ -38,16 +42,28 @@ public class PlayerNetwork : NetworkBehaviour
     // Use ServerRpc to communicate with eachother in chat? Might be big pog
 
 
+    private GameObject InstantiateObject(GameObject obj, ulong owner, GameObject parent = null)
+    {
+        var instance = Instantiate(obj);
+        instance.GetComponent<NetworkObject>().SpawnWithOwnership(owner);
+        instance.transform.localPosition = new Vector3(0, 0, 0);
+        if (parent != null)
+        {
+            instance.transform.SetParent(parent.transform);
+        }
+        return obj;
+    }
+
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         if (IsHost || IsServer)
         {
-            headInstance = Instantiate(Head.gameObject);
-            headInstance.GetComponent<NetworkObject>().SpawnWithOwnership(OwnerClientId);
-            headInstance.transform.localPosition = new Vector3(0, 0, 0);
-            headInstance.transform.SetParent(gameObject.transform);
+            headInstance = InstantiateObject(Head.gameObject, OwnerClientId, gameObject);
+            R_HandInstance = InstantiateObject(R_Hand.gameObject, OwnerClientId, gameObject);
+            L_HandInstance = InstantiateObject(L_Hand.gameObject, OwnerClientId, gameObject);
         }
 
 

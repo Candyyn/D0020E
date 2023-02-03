@@ -6,11 +6,11 @@ A project for D0020E - Strengthening social contacts and care for older people u
 
 ## Overview
 
-This project aims to create a 3D virtual environment for physiotherapy sessions using the Microsoft Hololens 2 mixed reality headset and the Unity game engine. The environment will provide patients with an immersive and interactive experience while they undergo physiotherapy exercises.
+This project aims to create a 3D mixed reality environment for physiotherapy sessions using the Microsoft Hololens 2 mixed reality headset and the Unity game engine. The environment will provide patients with an immersive and interactive experience while they undergo physiotherapy exercises.
 
 ## Features
 
-- A 3D virtual environment that replicates a real-world physiotherapy setup.
+- A 3D mixed reality environment that imitates a real-world physiotherapy setup.
 - Use of the Hololens 2 to provide an immersive experience to the patient.
 - Real-time tracking of patient movements and physiotherapy exercises to provide feedback and assess progress.
 - Integration with physiotherapy equipment for a more realistic experience.

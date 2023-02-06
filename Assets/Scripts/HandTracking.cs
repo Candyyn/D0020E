@@ -9,11 +9,15 @@ using Microsoft.MixedReality.Toolkit.Input;
 public class HandTracking : MonoBehaviour
 {
     public GameObject sphereMarker;
+    public GameObject handMarker;
+    
     GameObject thumbObject;
     GameObject indexObject;
     GameObject middleObject;
     GameObject ringObject;
     GameObject pinkyObject;
+    private GameObject handObject;
+    
     private MixedRealityPose pose;
     void Start()
     {
@@ -22,6 +26,8 @@ public class HandTracking : MonoBehaviour
         middleObject = Instantiate(sphereMarker, this.transform);
         ringObject = Instantiate(sphereMarker, this.transform);
         pinkyObject = Instantiate(sphereMarker, this.transform);
+        
+        handObject = Instantiate(handMarker, this.transform);
     }
 
     void Update()
@@ -31,6 +37,8 @@ public class HandTracking : MonoBehaviour
         middleObject.GetComponent<Renderer>().enabled = false;
         ringObject.GetComponent<Renderer>().enabled = false;
         pinkyObject.GetComponent<Renderer>().enabled = false;
+        
+        handObject.GetComponent<Renderer>().enabled = false;
         
         // RIGHT HAND
 
@@ -58,6 +66,12 @@ public class HandTracking : MonoBehaviour
         {
             pinkyObject.GetComponent<Renderer>().enabled = true;
             pinkyObject.transform.position = pose.Position;
+        }
+        
+        if (HandJointUtils.TryGetJointPose(TrackedHandJoint.Palm, Handedness.Right, out pose))
+        {
+            handObject.GetComponent<Renderer>().enabled = true;
+            handObject.transform.position = pose.Position;
         }
         
         // LEFT HAND

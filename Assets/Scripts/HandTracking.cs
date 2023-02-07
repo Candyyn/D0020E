@@ -8,36 +8,43 @@ using Microsoft.MixedReality.Toolkit.Input;
 
 public class HandTracking : MonoBehaviour
 {
-    public GameObject sphereMarker;
-    //public GameObject handMarker;
+    public GameObject redMarker;
+    public GameObject orangeMarker;
+    public GameObject yellowMarker;
+    public GameObject greenMarker;
+    public GameObject blueMarker;
+    public GameObject wristMarker;
     
     GameObject thumbObjectR;
     GameObject indexObjectR;
     GameObject middleObjectR;
     GameObject ringObjectR;
     GameObject pinkyObjectR;
+    GameObject wristObjectR;
     
     GameObject thumbObjectL;
     GameObject indexObjectL;
     GameObject middleObjectL;
     GameObject ringObjectL;
     GameObject pinkyObjectL;
-    //private GameObject handObject;
+    GameObject wristObjectL;
     
     private MixedRealityPose pose;
     void Start()
     {
-        thumbObjectR = Instantiate(sphereMarker, this.transform);
-        indexObjectR = Instantiate(sphereMarker, this.transform);
-        middleObjectR = Instantiate(sphereMarker, this.transform);
-        ringObjectR = Instantiate(sphereMarker, this.transform);
-        pinkyObjectR = Instantiate(sphereMarker, this.transform);
-        
-        thumbObjectL = Instantiate(sphereMarker, this.transform);
-        indexObjectL = Instantiate(sphereMarker, this.transform);
-        middleObjectL = Instantiate(sphereMarker, this.transform);
-        ringObjectL = Instantiate(sphereMarker, this.transform);
-        pinkyObjectL = Instantiate(sphereMarker, this.transform);
+        thumbObjectR = Instantiate(blueMarker, this.transform);
+        indexObjectR = Instantiate(greenMarker, this.transform);
+        middleObjectR = Instantiate(yellowMarker, this.transform);
+        ringObjectR = Instantiate(orangeMarker, this.transform);
+        pinkyObjectR = Instantiate(redMarker, this.transform);
+        wristObjectR = Instantiate(wristMarker, this.transform);
+
+        thumbObjectL = Instantiate(blueMarker, this.transform);
+        indexObjectL = Instantiate(greenMarker, this.transform);
+        middleObjectL = Instantiate(yellowMarker, this.transform);
+        ringObjectL = Instantiate(orangeMarker, this.transform);
+        pinkyObjectL = Instantiate(redMarker, this.transform);
+        wristObjectL = Instantiate(wristMarker, this.transform);
         
         //handObject = Instantiate(handMarker, this.transform);
     }
@@ -49,13 +56,15 @@ public class HandTracking : MonoBehaviour
         middleObjectR.GetComponent<Renderer>().enabled = false;
         ringObjectR.GetComponent<Renderer>().enabled = false;
         pinkyObjectR.GetComponent<Renderer>().enabled = false;
+        wristObjectR.GetComponent<Renderer>().enabled = false;
         
         thumbObjectL.GetComponent<Renderer>().enabled = false;
         indexObjectL.GetComponent<Renderer>().enabled = false;
         middleObjectL.GetComponent<Renderer>().enabled = false;
         ringObjectL.GetComponent<Renderer>().enabled = false;
         pinkyObjectL.GetComponent<Renderer>().enabled = false;
-        
+        wristObjectL.GetComponent<Renderer>().enabled = false;
+
         //handObject.GetComponent<Renderer>().enabled = false;
         
         // RIGHT HAND
@@ -85,12 +94,17 @@ public class HandTracking : MonoBehaviour
             pinkyObjectR.GetComponent<Renderer>().enabled = true;
             pinkyObjectR.transform.position = pose.Position;
         }
-        
+        if (HandJointUtils.TryGetJointPose(TrackedHandJoint.Wrist, Handedness.Right, out pose))
+        {
+            wristObjectR.GetComponent<Renderer>().enabled = true;
+            wristObjectR.transform.position = pose.Position;
+        }       
         //if (HandJointUtils.TryGetJointPose(TrackedHandJoint.Palm, Handedness.Right, out pose))
         //{
         //    handObject.GetComponent<Renderer>().enabled = true;
         //    handObject.transform.position = pose.Position;
         //}
+        
         
         // LEFT HAND
         
@@ -119,5 +133,10 @@ public class HandTracking : MonoBehaviour
             pinkyObjectL.GetComponent<Renderer>().enabled = true;
             pinkyObjectL.transform.position = pose.Position;
         }
+        if (HandJointUtils.TryGetJointPose(TrackedHandJoint.Wrist, Handedness.Left, out pose))
+        {
+            wristObjectL.GetComponent<Renderer>().enabled = true;
+            wristObjectL.transform.position = pose.Position;
+        } 
     }
 }

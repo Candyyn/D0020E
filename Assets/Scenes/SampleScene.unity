@@ -152,7 +152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 150d0a53adf400540888d7f4354a5a49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sphereMarker: {fileID: 4083634885810214204, guid: b7da302f98e512e4f8a725ba3c70132e, type: 3}
+  redMarker: {fileID: 4083634885810214204, guid: 724bb4028aa75284989df26582185cd4, type: 3}
+  orangeMarker: {fileID: 4083634885810214204, guid: 737b67f850572f442a34462b02910ad0, type: 3}
+  yellowMarker: {fileID: 4083634885810214204, guid: 0712755917d65a947acbd1dd3eaef854, type: 3}
+  greenMarker: {fileID: 4083634885810214204, guid: b7da302f98e512e4f8a725ba3c70132e, type: 3}
+  blueMarker: {fileID: 4083634885810214204, guid: cca4bb343d312e74496b5ed96034dbdf, type: 3}
+  wristMarker: {fileID: 2214527001025953808, guid: bf2a754bae47d1e4b8b179ad89e70ead, type: 3}
 --- !u!4 &18483496
 Transform:
   m_ObjectHideFlags: 0

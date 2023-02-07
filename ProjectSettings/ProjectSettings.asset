@@ -739,11 +739,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: 2ac25a32-b067-4672-8710-5fcb54862c24
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: D0020E
+  organizationId: emimag-0
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 

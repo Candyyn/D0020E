@@ -57,8 +57,8 @@ public class Rotate : NetworkBehaviour
     private void Update3DPosition(Transform listener, Transform speaker)
     {
         // _cachedPosition is a custom class with a method that checks the given values against its cached versions. If they differ, it returns true and caches the given ones.
-        _vivoxVoiceManager.TransmittingSession.Set3DPosition(speaker.position, listener.position,
-            listener.forward, listener.up);
+        //_vivoxVoiceManager.TransmittingSession.Set3DPosition(speaker.position, listener.position,
+        //    listener.forward, listener.up);
     }
 
 

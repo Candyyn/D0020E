@@ -560,3 +560,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handName: R_Wrist
+  canSeeHand: 0

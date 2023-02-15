@@ -18,11 +18,13 @@ namespace Microsoft.MixedReality.Toolkit.Examples.Demos
             if (textMesh == null)
             {
                 textMesh = GetComponent<TextMeshPro>();
+                Debug.Log(eventData);
             }
 
             if (textMesh != null)
             {
                 textMesh.text = $"{eventData.NewValue:F2}";
+                Debug.Log(eventData);
             }
         }
     }

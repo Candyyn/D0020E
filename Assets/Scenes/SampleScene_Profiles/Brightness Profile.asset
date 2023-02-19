@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Brightness Profile
   m_EditorClassIdentifier: 
   settings:
-  - {fileID: 2470883552315608871}
---- !u!114 &2470883552315608871
+  - {fileID: 521210316303768675}
+--- !u!114 &521210316303768675
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,10 +41,10 @@ MonoBehaviour:
     value: 0
   keyValue:
     overrideState: 1
-    value: 0.96
-  eyeAdaptation:
-    overrideState: 1
     value: 1
+  eyeAdaptation:
+    overrideState: 0
+    value: 0
   speedUp:
     overrideState: 0
     value: 2

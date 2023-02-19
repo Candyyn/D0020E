@@ -7,11 +7,8 @@ using UnityEngine.Events;
 [Serializable] public class FloatEvent : UnityEvent<float> { }
 public class SetVolume : MonoBehaviour
 {
-    
-
-
-    public void MethSetVol(float volume)
+    void Awake()
     {
-        Debug.Log(volume);
+        DontDestroyOnLoad(transform.gameObject);
     }
 }

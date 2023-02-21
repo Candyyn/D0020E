@@ -21,7 +21,7 @@ public class MainMenuScript: MonoBehaviour
     
     void Start()
     {
-        brightness.TryGetSettings(out exposure);
+        
     }
 
     public void PlayGame()
@@ -45,7 +45,7 @@ public class MainMenuScript: MonoBehaviour
         
         audioMixer.SetFloat("volume", -1*floatValue);
         
-        Debug.Log($"{-80*eventData.NewValue:F2}");
+        //Debug.Log($"{-80*eventData.NewValue:F2}");
     }
     
     public void AdjustBrightness(SliderEventData eventData)

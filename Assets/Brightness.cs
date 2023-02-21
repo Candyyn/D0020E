@@ -23,7 +23,7 @@ public class Brightness : MonoBehaviour
     {
         brightness.TryGetSettings(out exposure);
         exposure.keyValue.value = PlayerPrefs.GetFloat("Brightness");
-        _brightslider.value = PlayerPrefs.GetFloat("Brightness");
+        
         
     }
 
@@ -48,9 +48,9 @@ public class Brightness : MonoBehaviour
         
     }
 
-    public void UpdateBrighntess(float Brightness)
+    public void UpdateBrighntess(float brightness)
     {
-        exposure.keyValue.value = Brightness;
+        exposure.keyValue.value = brightness;
 
     }
     

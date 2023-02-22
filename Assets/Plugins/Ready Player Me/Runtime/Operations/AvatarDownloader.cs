@@ -1,107 +1,116 @@
-using System;
+﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using UnityEngine;
+using System.Collections;
+using UnityEditor;
+using UnityEngine.Networking;
 
 namespace ReadyPlayerMe
 {
-    public class AvatarDownloader : IOperation<AvatarContext>
+    public class AvatarDownloader: IDownload
     {
-        private const string TAG = nameof(AvatarDownloader);
-        private readonly bool downloadInMemory;
-
-        public int Timeout { get; set; }
-
-        public Action<float> ProgressChanged { get; set; }
-
-        public AvatarDownloader(bool downloadInMemory = false)
+        // Save destination of the avatar models under Application.persistentDataPath
+        // TODO: Expose this and let developer change it to where they want
+        private const string SAVE_FOLDER = "Resources/Avatars";
+        
+        public int Timeout { get; set; } = 20;
+        public Action<FailureType, string> OnFailed;
+        public Action<float> OnProgressChanged;
+        public Action<byte[]> OnCompleted;
+        
+        private bool HasInternetConnection => Application.internetReachability != NetworkReachability.NotReachable;
+        
+        private void CheckFileDirectory()
         {
-            this.downloadInMemory = downloadInMemory;
+            #if UNITY_EDITOR
+                if (!Directory.Exists($"{ Application.dataPath }/{ SAVE_FOLDER }"))
+                {
+                    Directory.CreateDirectory($"{ Application.dataPath }/{ SAVE_FOLDER }");
+                }
+            #else
+                OnFailed?.Invoke(FailureType.DirectoryAccessError, "Directory access is available only in the editor.");
+                throw new Exception("Directory access is available only in the editor.");
+            #endif
         }
-
-        public async Task<AvatarContext> Execute(AvatarContext context, CancellationToken token)
+        
+        public IEnumerator DownloadIntoMemory(string url)
         {
-            if (context.AvatarUri.Equals(default(AvatarUri)))
+            if (HasInternetConnection)
             {
-                throw new InvalidDataException($"Expected cast {typeof(string)} instead got ");
+                using (var request = new UnityWebRequest(url))
+                {
+                    request.timeout = Timeout;
+                    request.downloadHandler = new DownloadHandlerBuffer();
+
+                    var op = request.SendWebRequest();
+
+                    while (!op.isDone)
+                    {
+                        yield return null;
+                        OnProgressChanged?.Invoke(request.downloadProgress);
+                    }
+                    
+                    if (request.downloadedBytes == 0 || request.isHttpError || request.isNetworkError)
+                    {
+                        OnFailed?.Invoke(FailureType.ModelDownloadError, $"Failed to download glb model into memory. {request.error}");
+                    }
+                    else
+                    {
+                        var bytes = request.downloadHandler.data;
+                        OnCompleted?.Invoke(bytes);
+                    }
+                }
             }
-
-            if (!context.Metadata.IsUpdated && File.Exists(context.AvatarUri.LocalModelPath))
-            {
-                SDKLogger.Log(TAG, "Loading model from cache.");
-                context.Bytes = File.ReadAllBytes(context.AvatarUri.LocalModelPath);
-                return context;
-            }
-
-            if (context.Metadata.IsUpdated)
-            {
-                AvatarCache.ClearAvatar(context.AvatarUri.Guid, context.SaveInProjectFolder);
-            }
-
-            if (downloadInMemory)
-            {
-                context.Bytes = await DownloadIntoMemory(context.AvatarUri.ModelUrl, context.AvatarConfig, token);
-                return context;
-            }
-
-            context.Bytes = await DownloadIntoFile(context.AvatarUri.ModelUrl, context.AvatarUri.Guid, context.AvatarUri.LocalModelPath, context.AvatarConfig, token);
-            return context;
-        }
-
-        public async Task<byte[]> DownloadIntoMemory(string url, AvatarConfig avatarConfig = null, CancellationToken token = new CancellationToken())
-        {
-            if (avatarConfig)
-            {
-                var parameters = AvatarConfigProcessor.ProcessAvatarConfiguration(avatarConfig);
-                url += parameters;
-                SDKLogger.Log(TAG, $"Download URL with parameters: {url}");
-            }
-
-            SDKLogger.Log(TAG, "Downloading avatar into memory.");
-
-            var dispatcher = new WebRequestDispatcher();
-            dispatcher.ProgressChanged = ProgressChanged;
-
-            try
-            {
-                var response = await dispatcher.DownloadIntoMemory(url, token, Timeout);
-                return response.Data;
-            }
-            catch (Exception exception)
-            {
-                throw Fail($"Failed to download glb model into memory. {exception}");
+            else {
+                OnFailed?.Invoke(FailureType.NoInternetConnection, "No internet connection.");
             }
         }
 
-        public async Task<byte[]> DownloadIntoFile(string url, string guid, string path, AvatarConfig avatarConfig = null, CancellationToken token = new CancellationToken())
+        public IEnumerator DownloadIntoFile(string url, string path)
         {
-            if (avatarConfig)
+            CheckFileDirectory();
+            
+            if (HasInternetConnection)
             {
-                var parameters = AvatarConfigProcessor.ProcessAvatarConfiguration(avatarConfig);
-                url += parameters;
-                SDKLogger.Log(TAG, $"Download URL with parameters: {url}");
+                using (var request = new UnityWebRequest(url))
+                {
+                    request.timeout = Timeout;
+                    request.downloadHandler = new DownloadHandlerFile(path);
+
+                    var op = request.SendWebRequest();
+                    
+                    while (!op.isDone)
+                    {
+                        yield return null;
+                        OnProgressChanged?.Invoke(request.downloadProgress);
+                    }
+
+                    if (request.downloadedBytes == 0 || request.isHttpError || request.isNetworkError)
+                    {
+                        OnFailed?.Invoke(FailureType.ModelDownloadError, $"Failed to download glb model into file. {request.error}");
+                    }
+                    else
+                    {
+                        var byteLength = (long)request.downloadedBytes;
+                        
+                        var info = new FileInfo(path);
+
+                        while (info.Length != byteLength)
+                        {
+                            info.Refresh();
+                            yield return null;
+                        }
+
+                        // Reading file since can't access raw bytes from downloadHandler
+                        var bytes = File.ReadAllBytes(path);
+                        
+                        OnCompleted?.Invoke(bytes);
+                    }
+                }
             }
-
-            SDKLogger.Log(TAG, $"Downloading avatar into file at {path}");
-
-            var dispatcher = new WebRequestDispatcher();
-            dispatcher.ProgressChanged = ProgressChanged;
-
-            try
-            {
-                var response = await dispatcher.DownloadIntoFile(url, path, token, Timeout);
-                return response.Data;
+            else {
+                OnFailed?.Invoke(FailureType.NoInternetConnection, "No internet connection.");
             }
-            catch (Exception exception)
-            {
-                throw Fail($"Failed to download glb model into file. {exception}");
-            }
-        }
-
-        private Exception Fail(string message)
-        {
-            SDKLogger.Log(TAG, message);
-            throw new CustomException(FailureType.ModelDownloadError, message);
         }
     }
 }

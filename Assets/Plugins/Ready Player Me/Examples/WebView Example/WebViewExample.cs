@@ -8,34 +8,21 @@ namespace ReadyPlayerMe
         private GameObject avatar;
 
         [SerializeField] private WebView webView;
-        [SerializeField] private GameObject loadingLabel;
-        [SerializeField] private GameObject warningLabel;
-        [SerializeField] private GameObject messageLabel;
-        [SerializeField] private Button displayButton;
-        [SerializeField] private Button closeButton;
-
-        [SerializeField,
-         Tooltip("Uncheck if you don't want to continue editing the previous avatar, and make a completely new one.")]
+        [SerializeField] private GameObject loadingLabel = null;
+        [SerializeField] private Button displayButton = null;
+        [SerializeField] private Button closeButton = null;
+        
+        [SerializeField, Tooltip("Uncheck if you don't want to continue editing the previous avatar, and make a completely new one.")] 
         private bool keepBrowserSessionAlive = true;
-
-        private async void Start()
+        private void Start()
         {
             displayButton.onClick.AddListener(DisplayWebView);
             closeButton.onClick.AddListener(HideWebView);
-            
-            if (webView == null)
+            if(webView == null)
             {
                 webView = FindObjectOfType<WebView>();
             }
-
             webView.KeepSessionAlive = keepBrowserSessionAlive;
-            
-            // Check if device can load RPM website, display warning id not
-            var available = await webView.IsWebViewUpToDate();
-            
-            messageLabel.SetActive(false);
-            warningLabel.SetActive(!available);
-            displayButton.gameObject.SetActive(available);
         }
 
         // Display WebView or create it if not initialized yet 
@@ -50,7 +37,7 @@ namespace ReadyPlayerMe
                 webView.CreateWebView();
                 webView.OnAvatarCreated = OnAvatarCreated;
             }
-
+            
             closeButton.gameObject.SetActive(true);
             displayButton.gameObject.SetActive(false);
         }
@@ -67,7 +54,7 @@ namespace ReadyPlayerMe
         {
             if (avatar) Destroy(avatar);
             webView.SetVisible(false);
-
+            
             loadingLabel.SetActive(true);
             displayButton.gameObject.SetActive(false);
             closeButton.gameObject.SetActive(false);
@@ -87,19 +74,16 @@ namespace ReadyPlayerMe
         private void Completed(object sender, CompletionEventArgs args)
         {
             avatar = args.Avatar;
-            AvatarAnimatorHelper.SetupAnimator(args.Metadata.BodyType, avatar);
             loadingLabel.SetActive(false);
             displayButton.gameObject.SetActive(true);
 
             Debug.Log("Avatar Imported");
         }
 
-        private void OnDestroy()
+        private void Destroy()
         {
             displayButton.onClick.RemoveListener(DisplayWebView);
             closeButton.onClick.RemoveListener(HideWebView);
-
-            if (avatar) Destroy(avatar);
         }
     }
 }

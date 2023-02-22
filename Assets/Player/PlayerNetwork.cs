@@ -16,6 +16,7 @@ public class PlayerNetwork : NetworkBehaviour
     [SerializeField] private Transform Head;
     [SerializeField] private Transform L_Hand;
     [SerializeField] private Transform R_Hand;
+    [SerializeField] private Transform HandTrackingController;
 
     public GameObject avatar;
     public GameObject child;
@@ -23,6 +24,7 @@ public class PlayerNetwork : NetworkBehaviour
     private GameObject headInstance;
     private GameObject R_HandInstance;
     private GameObject L_HandInstance;
+    private GameObject HandTrackingInstance;
 
     //private GameObject hololens;
     private Camera cam;
@@ -58,7 +60,7 @@ public class PlayerNetwork : NetworkBehaviour
             instance.transform.SetParent(parent.transform);
         }
 
-        return obj;
+        return instance;
     }
 
 
@@ -72,6 +74,7 @@ public class PlayerNetwork : NetworkBehaviour
             headInstance = InstantiateObject(Head.gameObject, OwnerClientId, gameObject);
             R_HandInstance = InstantiateObject(R_Hand.gameObject, OwnerClientId, gameObject);
             L_HandInstance = InstantiateObject(L_Hand.gameObject, OwnerClientId, gameObject);
+            //HandTrackingInstance = InstantiateObject(HandTrackingController.gameObject, OwnerClientId, gameObject);
         }
 
 
@@ -83,11 +86,44 @@ public class PlayerNetwork : NetworkBehaviour
             //AvatarAnimatorHelper.SetupAnimator(args.Metadata.BodyType, avatar);
 
             avatar.transform.SetParent(gameObject.transform);
+            avatar.transform.localPosition = new Vector3(0, (float)-0.652, (float)-0.023);
+            
+            
+            //Disable animator of avatar
+            avatar.GetComponent<Animator>().enabled = false;
 
 
-            //Find a Child Game Object of Avatar called "Neck" and add a LimitChildRotation component to it.
+            avatar.name = IsLocalPlayer ? "LocalPlayerAvatar" : "PlayerAvatar_" + Guid.NewGuid().ToString();
+            
 
-            Debug.Log(avatar.transform.Find("Neck"));
+            // Add Script Bone Renderer
+            BoneRenderer renderer = avatar.AddComponent<BoneRenderer>();
+            Transform Armature = avatar.transform.Find("Armature");
+            // Loop over all children
+            GameObject[] allChildren = new GameObject[1];
+            allChildren[0] = gameObject;
+            FillChildrenArray(Armature.gameObject, ref allChildren);
+
+            try
+            {
+                renderer.transforms = new Transform[allChildren.Length];
+                for (int i = 0; i < allChildren.Length; i++)
+                {
+                    renderer.transforms[i] = allChildren[i].transform;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            
+            Debug.Log("[TEST]");
+            
+            Debug.Log("[TEST] " + RecursiveFindChild(Armature, "RightHand"));
+
+            
+            RecursiveFindChild(Armature, "RightHand").gameObject.AddComponent<handController>().TagForHand = "RightHand";
+            RecursiveFindChild(Armature, "LeftHand").gameObject.AddComponent<handController>().TagForHand = "LeftHand";
 
 
             child = RecursiveFindChild(avatar.transform, "Neck").gameObject;
@@ -95,8 +131,10 @@ public class PlayerNetwork : NetworkBehaviour
             //child = GameObject.Find("Neck");
             child.AddComponent<LimitChildRotation>().child = head;
             head.AddComponent<TransferDollToModel>();
+
         };
         avatarLoader.LoadAvatar("https://models.readyplayer.me/63e3d13092545d144f7bff4e.glb");
+        //avatarLoader.LoadAvatar("https://models.readyplayer.me/63e4b416535f0cb7b86ccb40.glb");
 
 
         if (!IsOwner || !IsLocalPlayer) return;
@@ -130,5 +168,21 @@ public class PlayerNetwork : NetworkBehaviour
         }
 
         return null;
+    }
+    
+    void FillChildrenArray(GameObject parent, ref GameObject[] childrenArray)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            // Add the child object to the array
+            childrenArray[childrenArray.Length - 1] = child.gameObject;
+            Array.Resize(ref childrenArray, childrenArray.Length + 1);
+        
+            // Recursively fill the array with any children of this child
+            if (child.childCount > 0)
+            {
+                FillChildrenArray(child.gameObject, ref childrenArray);
+            }
+        }
     }
 }

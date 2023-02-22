@@ -1,17 +1,23 @@
 #if UNITY_ANDROID
 using UnityEngine;
+using UnityEngine.Android;
 
 public class AndroidWebViewWindow : WebViewWindowBase
 {
-    private const string WebViewAndroidPluginName = "net.gree.unitywebview.CWebViewPlugin";
+    private const string WebViewAndroidPluginName = "io.wolf3d.webviewplugin.CWebViewPlugin";
 
     private AndroidJavaObject webView;
     private AndroidJavaObject rectangle;
 
     public override void Init(WebViewOptions options)
     {
+        if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
+        {
+            Permission.RequestUserPermission(Permission.Camera);
+        }
+
         webView = new AndroidJavaObject(WebViewAndroidPluginName);
-        webView.Call("Init", name, options.Transparent, options.Zoom, (int) options.AndroidForceDarkMode, options.UA);
+        webView.Call("Init", name, options.Transparent, options.Zoom, (int)options.AndroidForceDarkMode, options.UA);
 
         using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         {
@@ -79,7 +85,7 @@ public class AndroidWebViewWindow : WebViewWindowBase
             webView.Call("SetAlertDialogEnabled", value);
         }
     }
-
+    
     public override bool ScrollBounceEnabled
     {
         get
@@ -107,13 +113,8 @@ public class AndroidWebViewWindow : WebViewWindowBase
         webView.Call("EvaluateJS", js);
     }
 
-    public override bool IsWebViewAvailable()
-    {
-        return webView.CallStatic<bool>(nameof(IsWebViewAvailable));
-    }
 
     #region Navigation Methods
-
     public override int Progress => webView.Get<int>("progress");
 
     public override bool CanGoBack() => webView.Get<bool>("canGoBack");
@@ -125,11 +126,9 @@ public class AndroidWebViewWindow : WebViewWindowBase
     public override void GoForward() => webView.Call("GoForward");
 
     public override void Reload() => webView.Call("Reload");
-
     #endregion
 
     #region Session Related Methods
-
     public override void AddCustomHeader(string key, string value) => webView.Call("AddCustomHeader", key, value);
 
     public override string GetCustomHeaderValue(string key) => webView.Call<string>("GetCustomHeaderValue", key);
@@ -146,10 +145,9 @@ public class AndroidWebViewWindow : WebViewWindowBase
 
     public override void SetBasicAuthInfo(string userName, string password) => webView.Call("SetBasicAuthInfo", userName, password);
 
-    public override void ClearCache(bool includeDiskFiles) => webView.Call("ClearCache", includeDiskFiles);
-
+    public override void ClearCache(bool includeDiskFiles)=> webView.Call("ClearCache", includeDiskFiles);
     #endregion
-
+    
     private void OnDestroy()
     {
         webView.Call("Destroy");

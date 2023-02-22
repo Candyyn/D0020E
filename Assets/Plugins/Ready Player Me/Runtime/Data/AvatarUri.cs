@@ -1,4 +1,6 @@
-﻿namespace ReadyPlayerMe
+﻿using System;
+
+namespace ReadyPlayerMe
 {
     public struct AvatarUri
     {

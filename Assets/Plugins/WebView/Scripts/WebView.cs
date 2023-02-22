@@ -1,38 +1,31 @@
 using System;
 using UnityEngine;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
-
-#if UNITY_ANDROID
-    using UnityEngine.Android;
-#endif
 
 namespace ReadyPlayerMe
 {
-    public class WebView : MonoBehaviour
+    public class WebView: MonoBehaviour
     {
-        private static UserAgent userAgent = null;
-        
         private const string DATA_URL_FIELD_NAME = "url";
         private const string AVATAR_EXPORT_EVENT_NAME = "v1.avatar.exported";
 
         private WebViewWindowBase webViewObject = null;
 
         [SerializeField] private MessagePanel messagePanel = null;
-
+        
         [Header("Padding")]
         [SerializeField] private int left;
         [SerializeField] private int top;
         [SerializeField] private int right;
         [SerializeField] private int bottom;
-
+          
         public bool Loaded { get; private set; }
-
+        
         // Event to call when avatar is created, receives GLB url.
         public Action<string> OnAvatarCreated;
 
         public bool KeepSessionAlive { get; set; } = true;
-
+        
         /// <summary>
         ///     Create WebView object attached to a MonoBehaviour object
         /// </summary>
@@ -49,14 +42,17 @@ namespace ReadyPlayerMe
                     messagePanel.SetMessage(MessagePanel.MessageType.NotSupported);
                     messagePanel.SetVisible(true);
                 #else
-                    messagePanel.SetMessage(MessagePanel.MessageType.Loading);
-                    messagePanel.SetVisible(true);
+                    if (webViewObject == null)
+                    {
+                        messagePanel.SetMessage(MessagePanel.MessageType.Loading);
+                        messagePanel.SetVisible(true);
 
-                    #if UNITY_ANDROID
-                        webViewObject = gameObject.AddComponent<AndroidWebViewWindow>();
-                    #elif UNITY_IOS
-                        webViewObject = gameObject.AddComponent<IOSWebViewWindow>();
-                    #endif
+                        #if UNITY_ANDROID
+                            webViewObject = gameObject.AddComponent<AndroidWebViewWindow>();
+                        #elif UNITY_IOS
+                            webViewObject = gameObject.AddComponent<IOSWebViewWindow>();
+                        #endif
+                    }
 
                     webViewObject.OnLoaded = OnLoaded;
                     webViewObject.OnJS = OnWebMessageReceived;
@@ -65,98 +61,15 @@ namespace ReadyPlayerMe
                     webViewObject.Init(options);
                     
                     PartnerSO partner = Resources.Load<PartnerSO>("Partner");
-                    string url = partner.GetUrl(KeepSessionAlive);
+                    string url = partner.GetUrl();
                     webViewObject.LoadURL(url);
                     webViewObject.IsVisible = true;
                 #endif
             }
-
+            
             SetScreenPadding(left, top, right, bottom);
         }
 
-        /// User Agent of the system WebView of the device, that will be used for displaying RPM website.
-        private async Task<UserAgent> GetUserAgent()
-        {
-            var timeout = 5f;
-            var resolved = false;
-            UserAgent webViewUserAgent = new UserAgent();
-            
-            #if UNITY_EDITOR || !(UNITY_ANDROID || UNITY_IOS)
-                messagePanel.SetMessage(MessagePanel.MessageType.NotSupported);
-                messagePanel.SetVisible(true);
-                return webViewUserAgent;
-            #else
-                #if UNITY_ANDROID
-                    webViewObject = gameObject.AddComponent<AndroidWebViewWindow>();
-                #elif UNITY_IOS
-                    webViewObject = gameObject.AddComponent<IOSWebViewWindow>();
-                #endif
-            #endif
-
-            // called when page sends UserAgent string
-            webViewObject.OnJS = (message) =>
-            {
-                webViewUserAgent = new UserAgent(message);
-                Destroy(webViewObject);
-                resolved = true;
-            };
-
-            // called when blank page is loaded 
-            webViewObject.OnLoaded = (message) =>
-            {
-                webViewObject.EvaluateJS(@"
-                    if (window && window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.unityControl) {
-                        window.Unity = { call: function(msg) { window.webkit.messageHandlers.unityControl.postMessage(msg); } }
-                    }
-                    else {
-                        window.Unity = { call: function(msg) { window.location = 'unity:' + msg; } }
-                    }
-                    
-                    Unity.call(window.navigator.userAgent);
-                ");
-            };
-            
-            WebViewOptions options = new WebViewOptions();
-            webViewObject.Init(options);
-            
-            if (!webViewObject.IsWebViewAvailable())
-            {
-                Destroy(webViewObject);
-                return webViewUserAgent;
-            }
-            
-            webViewObject.LoadURL("");
-
-            while (!resolved)
-            {
-                if (timeout <= 0)
-                {
-                    Debug.Log("WebView check timed out.");
-                    break;
-                }
-                
-                timeout -= Time.deltaTime;
-                await Task.Yield();
-            }
-
-            return webViewUserAgent;
-        }
-
-        /// <summary>
-        ///     Check if the WebView that will be used for displaying RPM website is up to date for handling 3D graphics.
-        ///     If it returns false, it is not advised to load WebView since the browser performance will be poor.
-        ///     Instead, you can warn the user for them to update their system WebView applications.
-        /// </summary>
-        public async Task<bool> IsWebViewUpToDate()
-        {
-            if (userAgent == null)
-            {
-                userAgent = await GetUserAgent();
-            }
-            
-            return userAgent.IsWebViewUpToDate();
-        }
-        
         /// <summary>
         ///     Set WebView screen padding in pixels.
         /// </summary>
@@ -190,37 +103,47 @@ namespace ReadyPlayerMe
 
         private void OnWebMessageReceived(string message)
         {
-            Debug.Log($"--- WebView Message: {message}");
+            Debug.Log($"--- WebView Message: { message }");
 
             try
             {
                 WebMessage webMessage = JsonConvert.DeserializeObject<WebMessage>(message);
 
-                if (webMessage.eventName == AVATAR_EXPORT_EVENT_NAME)
+                if(webMessage.eventName == AVATAR_EXPORT_EVENT_NAME)
                 {
                     if (webMessage.data.TryGetValue(DATA_URL_FIELD_NAME, out string avatarUrl))
                     {
                         webViewObject.IsVisible = false;
                         OnAvatarCreated?.Invoke(avatarUrl);
-
                         if (!KeepSessionAlive)
                         {
-                            Loaded = false;
-                            webViewObject.Reload();
+                            ClearAvatarData();
                         }
                     }
                 }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                Debug.Log($"--- Message is not JSON: {message}\nError Message: {e.Message}");
+                Debug.Log($"--- Message is not JSON: { message }\nError Message: { e.Message }");
             }
+        }
+        
+        /// <summary>
+        ///     Clear avatar data from the WebView local storage and reload RPM page for a new avatar creation.
+        /// </summary>
+        public void ClearAvatarData()
+        {
+            webViewObject.EvaluateJS(@"
+                window.localStorage.removeItem('persist:user');
+            ");
+            webViewObject.Reload();
+            Loaded = false;
         }
 
         private void OnLoaded(string message)
         {
             if (Loaded) return;
-
+            
             Debug.Log("--- WebView Loaded.");
 
             webViewObject.EvaluateJS(@"
@@ -270,29 +193,10 @@ namespace ReadyPlayerMe
                 );
 
                 window.removeEventListener('message', subscribe);
-                window.addEventListener('message', subscribe);
+                window.addEventListener('message', subscribe)
             ");
 
-            AskForCameraPermission();
-
             Loaded = true;
-        }
-
-        private void AskForCameraPermission()
-        {
-            #if UNITY_ANDROID
-                if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
-                {
-                    Permission.RequestUserPermission(Permission.Camera);
-                }
-            #endif
-                
-            #if UNITY_IOS
-                if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
-                {
-                    Application.RequestUserAuthorization(UserAuthorization.WebCam);
-                }
-            #endif
         }
 
         private void OnDrawGizmos()
@@ -302,12 +206,20 @@ namespace ReadyPlayerMe
             {
                 Gizmos.matrix = rectTransform.localToWorldMatrix;
                 Gizmos.color = Color.green;
-
+                
                 var center = new Vector3((left - right) / 2f, (bottom - top) / 2f);
                 var rect = rectTransform.rect;
                 var size = new Vector3(rect.width - (left + right), rect.height - (bottom + top));
 
                 Gizmos.DrawWireCube(center, size);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (!KeepSessionAlive)
+            {
+                ClearAvatarData();
             }
         }
     }

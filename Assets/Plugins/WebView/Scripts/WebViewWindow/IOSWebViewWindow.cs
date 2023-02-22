@@ -62,6 +62,11 @@ public class IOSWebViewWindow : WebViewWindowBase
 
     public override void Init(WebViewOptions options)
     {
+        if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
+        {
+            Application.RequestUserAuthorization(UserAuthorization.WebCam);
+        }
+
         webView = _CWebViewPlugin_Init(name, options.Transparent, options.Zoom, options.UA, options.EnableWKWebView, (int)options.WKContentMode);
     }
 
@@ -135,11 +140,6 @@ public class IOSWebViewWindow : WebViewWindowBase
     public override void EvaluateJS(string js)
     {
         _CWebViewPlugin_EvaluateJS(webView, js);
-    }
-    
-    public override bool IsWebViewAvailable()
-    {
-        return true;
     }
 
     #region Navigation Methods

@@ -1,12 +1,14 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using UnityEngine;
 
-namespace ReadyPlayerMe
+namespace ReadyPlayerMe 
 {
-    public interface IAvatarImporter : IOperation<AvatarContext>
+    public interface IAvatarImporter
     {
-        Task<GameObject> ImportModel(byte[] bytes, CancellationToken token);
-        Task<GameObject> ImportModel(string path, CancellationToken token);
+        Action<FailureType, string> OnFailed { get; set; }
+        Action<float> OnProgressChanged { get; set; }
+        Action<GameObject> OnCompleted { get; set; }
+        void Import(byte[] bytes);
+        void Import(string path);
     }
 }

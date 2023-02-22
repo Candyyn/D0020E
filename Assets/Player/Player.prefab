@@ -68,6 +68,9 @@ MonoBehaviour:
   Head: {fileID: 8317158259501637235, guid: a3862935c61824b4bb4958ccba14e094, type: 3}
   L_Hand: {fileID: 6052000721874462251, guid: ed4d82d630811df489f2708152b3d3e7, type: 3}
   R_Hand: {fileID: 6052000721874462251, guid: 6562c5616949e9246bfc391225cebc98, type: 3}
+  HandTrackingController: {fileID: 0}
+  avatar: {fileID: 0}
+  child: {fileID: 0}
 --- !u!114 &4245251546203832626
 MonoBehaviour:
   m_ObjectHideFlags: 0

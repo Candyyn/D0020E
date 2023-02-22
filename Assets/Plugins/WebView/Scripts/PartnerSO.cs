@@ -4,10 +4,9 @@ public class PartnerSO : ScriptableObject
 {
     public string Subdomain = null;
 
-    public string GetUrl(bool keepSessionAlive = true)
+    public string GetUrl()
     {
-        string cacheParam = keepSessionAlive ? "" : "&clearCache";
-        return $"https://{GetSubdomain()}.readyplayer.me/avatar?frameApi{ cacheParam }";
+        return $"https://{GetSubdomain()}.readyplayer.me/avatar?frameApi";
     }
 
     public string GetSubdomain()

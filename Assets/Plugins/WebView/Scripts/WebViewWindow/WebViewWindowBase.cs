@@ -21,7 +21,6 @@ public abstract class WebViewWindowBase : MonoBehaviour
     protected int windowVisibleDisplayFrameHeight;
 
     #region Properties
-
     // Window visibility
     protected bool isVisible = false;
     public abstract bool IsVisible { get; set; }
@@ -37,39 +36,33 @@ public abstract class WebViewWindowBase : MonoBehaviour
     // Scroll Bounce
     protected bool scrollBounceEnabled = true;
     public abstract bool ScrollBounceEnabled { get; set; }
-
     #endregion
 
     public abstract void Init(WebViewOptions options);
 
     public abstract void SetMargins(int left, int top, int right, int bottom);
-
+    
     public abstract void LoadURL(string url);
 
     public abstract void LoadHTML(string html, string baseUrl);
 
     public abstract void EvaluateJS(string js);
 
-    public abstract bool IsWebViewAvailable();
-
     public abstract int Progress { get; }
 
     #region Navigation Methods
-
     public abstract bool CanGoBack();
 
     public abstract bool CanGoForward();
 
     public abstract void GoBack();
-
+    
     public abstract void GoForward();
 
     public abstract void Reload();
-
     #endregion
 
     #region Session Related Methods
-
     public abstract void AddCustomHeader(string key, string value);
 
     public abstract string GetCustomHeaderValue(string key);
@@ -87,17 +80,14 @@ public abstract class WebViewWindowBase : MonoBehaviour
     public abstract void SetBasicAuthInfo(string userName, string password);
 
     public abstract void ClearCache(bool includeDiskFiles);
-
     #endregion
 
     #region Callback Methods
-
     public void CallFromJS(string message) => OnJS?.Invoke(message);
     public void CallOnHooked(string message) => OnHooked?.Invoke(message);
     public void CallOnLoaded(string url) => OnLoaded?.Invoke(url);
     public void CallOnStarted(string url) => OnStarted?.Invoke(url);
     public void CallOnError(string error) => OnError?.Invoke(error);
     public void CallOnHttpError(string error) => OnHttpError?.Invoke(error);
-
     #endregion
 }

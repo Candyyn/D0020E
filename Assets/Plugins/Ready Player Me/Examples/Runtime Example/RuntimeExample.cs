@@ -1,30 +1,28 @@
 ﻿using UnityEngine;
+using Siccity.GLTFUtility;
 
 namespace ReadyPlayerMe
 {
     public class RuntimeExample : MonoBehaviour
     {
         [SerializeField]
-        private string avatarUrl = "https://api.readyplayer.me/v1/avatars/632d65e99b4c6a4352a9b8db.glb";
-
-        private GameObject avatar;
+        private string avatarUrl = "https://d1a370nemizbjq.cloudfront.net/209a1bc2-efed-46c5-9dfd-edc8a1d9cbe4.glb";
 
         private void Start()
         {
-            ApplicationData.Log();
-            var avatarLoader = new AvatarLoader();
-            avatarLoader.OnCompleted += (_, args) =>
-            {
-                Debug.Log("Avatar loaded"); 
-                avatar = args.Avatar;
-                AvatarAnimatorHelper.SetupAnimator(args.Metadata.BodyType, avatar);
-            };
-            avatarLoader.LoadAvatar(avatarUrl);
-        }
+            Debug.Log($"Started loading avatar. [{Time.timeSinceLevelLoad:F2}]");
 
-        private void OnDestroy()
-        {
-            if (avatar != null) Destroy(avatar);
+            var avatarLoader = new AvatarLoader();
+            avatarLoader.OnCompleted += (sender, args) =>
+            {
+                Debug.Log($"Loaded avatar. [{Time.timeSinceLevelLoad:F2}]");
+            };
+            avatarLoader.OnFailed += (sender, args) =>
+            {
+                Debug.Log(args.Type);
+            };
+            
+            avatarLoader.LoadAvatar(avatarUrl);
         }
     }
 }

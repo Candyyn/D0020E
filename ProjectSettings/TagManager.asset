@@ -4,7 +4,6 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - UI
   - MRKT
   - PlayerHead
   - LeftHand
@@ -13,7 +12,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Postprocessing
+  - 
   - Water
   - UI
   - 
@@ -41,7 +40,7 @@ TagManager:
   - 
   - 
   - 
-  - Spatial Awareness
+  - 
   m_SortingLayers:
   - name: Default
     uniqueID: 0

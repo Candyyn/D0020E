@@ -40,6 +40,10 @@ public class PlayerNetwork : NetworkBehaviour
 
     private void Start()
     {
+        
+        
+        
+        
         if (!IsLocalPlayer) return;
         cam = Camera.main;
     }

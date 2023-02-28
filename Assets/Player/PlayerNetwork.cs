@@ -240,13 +240,19 @@ public class PlayerNetwork : NetworkBehaviour
             //Disable animator of avatar
             avatar.GetComponent<Animator>().enabled = false;
 
-
+            //Eyes blink (random)
+            avatar.AddComponent<EyeAnimationHandler>();
+            
+            //Mouth moves when talking
+            avatar.AddComponent<VoiceHandler>();
+            
             avatar.name = IsLocalPlayer ? "LocalPlayerAvatar" : "PlayerAvatar_" + Guid.NewGuid().ToString();
 
 
             // Add Script Bone Renderer
             //BoneRenderer boneRenderer = avatar.AddComponent<BoneRenderer>();
             Transform armature = avatar.transform.Find("Armature");
+
 
             var hand1 = RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<handController>();
             hand1.handProxy = rHand.gameObject;

@@ -33,7 +33,7 @@ public class PlayerNetwork : NetworkBehaviour
     // Default value is https://models.readyplayer.me/63e3d13092545d144f7bff4e.glb
     [SerializeField] private NetworkVariable<FixedString128Bytes> _avatarUrl = new("https://models.readyplayer.me/63e3d13092545d144f7bff4e.glb", NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
-    
+
     [SerializeField] private NetworkVariable<FixedString128Bytes> _name = new("Player", NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
 
@@ -75,28 +75,16 @@ public class PlayerNetwork : NetworkBehaviour
 
         if (IsLocalPlayer)
         {
-            if(IsHost || IsServer)
+            if (IsHost || IsServer)
                 setPlayerNameClientRpc("Owner");
             else
                 setPlayerNameClientRpc("Player");
         }
-        
-        
-        
+
+
         Debug.Log("OnNetworkSpawn for " + _name.Value);
-
-
-        if (IsHost || IsServer)
-        {
-            HeadInstance = InstantiateObject(head.gameObject, OwnerClientId, gameObject);
-            RHandInstance = InstantiateObject(rHand.gameObject, OwnerClientId, gameObject);
-            LHandInstance = InstantiateObject(lHand.gameObject, OwnerClientId, gameObject);
-            //HandTrackingInstance = InstantiateObject(HandTrackingController.gameObject, OwnerClientId, gameObject);
-        }
-
-
-        LoadPlayerAvatarClientRpc();
-
+        
+        LoadAvatar();
 
         if (!IsOwner || !IsLocalPlayer) return;
         // disable renderer for all children
@@ -146,9 +134,9 @@ public class PlayerNetwork : NetworkBehaviour
     [ClientRpc]
     public void setPlayerNameClientRpc(string name)
     {
-        _name.Value = name; 
+        _name.Value = name;
     }
-    
+
 
     [ClientRpc]
     public void changeAvatarClientRpc(String url)
@@ -205,9 +193,71 @@ public class PlayerNetwork : NetworkBehaviour
             {
                 Debug.Log(e);
             }*/
+            
+            child = RecursiveFindChild(avatar.transform, "Neck").gameObject;
 
-            RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<handController>().TagForHand = "RightHand";
-            RecursiveFindChild(armature, "LeftHand").gameObject.AddComponent<handController>().TagForHand = "LeftHand";
+            var o = RecursiveFindChild(child.transform, "Head").gameObject;
+            //child = GameObject.Find("Neck");
+            //child.AddComponent<LimitChildRotation>().child = o;
+            //o.AddComponent<TransferDollToModel>();
+        };
+        avatarLoader.LoadAvatar(_avatarUrl.Value.ToString());
+    }
+
+
+    void LoadAvatar()
+    {
+        if (IsLocalPlayer)
+        {
+            LoadPlayerAvatar();
+            LoadConnectedPlayersAvatar();
+        }
+        else
+        {
+            LoadNetworkPlayerAvatar();
+        }
+    }
+
+    void LoadPlayerAvatar()
+    {
+        if (avatar != null)
+        {
+            Destroy(avatar);
+        }
+
+        var avatarLoader = new AvatarLoader();
+
+        avatarLoader.OnCompleted += (_, args) =>
+        {
+            //Debug.Log("Avatar loaded"); 
+            avatar = args.Avatar;
+            //AvatarAnimatorHelper.SetupAnimator(args.Metadata.BodyType, avatar);
+
+            avatar.transform.SetParent(gameObject.transform);
+            avatar.transform.localPosition = new Vector3(0, (float)-0.652, (float)-0.023);
+
+
+            //Disable animator of avatar
+            avatar.GetComponent<Animator>().enabled = false;
+
+
+            avatar.name = IsLocalPlayer ? "LocalPlayerAvatar" : "PlayerAvatar_" + Guid.NewGuid().ToString();
+
+
+            // Add Script Bone Renderer
+            //BoneRenderer boneRenderer = avatar.AddComponent<BoneRenderer>();
+            Transform armature = avatar.transform.Find("Armature");
+
+            var hand1 = RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<handController>();
+            hand1.handProxy = rHand.gameObject;
+            hand1.TagForHand = "RightHand";
+            hand1.Init();
+
+            var hand2 = RecursiveFindChild(armature, "LeftHand").gameObject.AddComponent<handController>();
+            hand2.handProxy = lHand.gameObject;
+            Debug.Log(lHand);
+            hand2.TagForHand = "LeftHand";
+            hand2.Init();
 
 
             child = RecursiveFindChild(avatar.transform, "Neck").gameObject;
@@ -215,8 +265,63 @@ public class PlayerNetwork : NetworkBehaviour
             var o = RecursiveFindChild(child.transform, "Head").gameObject;
             //child = GameObject.Find("Neck");
             child.AddComponent<LimitChildRotation>().child = o;
-            o.AddComponent<TransferDollToModel>();
+            //o.AddComponent<TransferDollToModel>();
         };
+
         avatarLoader.LoadAvatar(_avatarUrl.Value.ToString());
+    }
+
+    void LoadNetworkPlayerAvatar()
+    {
+        if (avatar != null)
+        {
+            Destroy(avatar);
+        }
+
+        var avatarLoader = new AvatarLoader();
+
+        avatarLoader.OnCompleted += (_, args) =>
+        {
+            //Debug.Log("Avatar loaded"); 
+            avatar = args.Avatar;
+            //AvatarAnimatorHelper.SetupAnimator(args.Metadata.BodyType, avatar);
+
+            avatar.transform.SetParent(gameObject.transform);
+            avatar.transform.localPosition = new Vector3(0, (float)-0.652, (float)-0.023);
+
+
+            //Disable animator of avatar
+            avatar.GetComponent<Animator>().enabled = false;
+            
+            Transform armature = avatar.transform.Find("Armature");
+
+            var hand1 = RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<NetworkHandController>();
+            hand1.side = "Right";
+            hand1.init();
+
+            var hand2 = RecursiveFindChild(armature, "LeftHand").gameObject.AddComponent<NetworkHandController>();
+            hand2.side = "Left";
+            hand2.init();
+
+            avatar.name = "PlayerAvatar_" + Guid.NewGuid().ToString();
+            
+        };
+
+        avatarLoader.LoadAvatar(_avatarUrl.Value.ToString());
+    }
+
+
+    void LoadConnectedPlayersAvatar()
+    {
+        // Loop over all game objects with tag "Player"
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players)
+        {
+            PlayerNetwork playerNetwork = player.GetComponent<PlayerNetwork>();
+            if (playerNetwork != null && playerNetwork != this) // check if the playerNetwork exists and is not the current player
+            {
+                playerNetwork.LoadNetworkPlayerAvatar();
+            }
+        }
     }
 }

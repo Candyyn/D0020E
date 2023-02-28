@@ -49,8 +49,10 @@ public class NetworkStarter : MonoBehaviour
 
     public void Login()
     {
-        voiceManager.Login(NetworkManager.Singleton.LocalClient.ClientId.ToString());
+        //voiceManager.Login(NetworkManager.Singleton.LocalClient.ClientId.ToString());
     }
+    
+
 
     public void JoinChannel()
     {

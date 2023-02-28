@@ -80,6 +80,7 @@ public class PlayerNetwork : NetworkBehaviour
             else
                 setPlayerNameClientRpc("Player");
         }
+        Debug.Log("OnNetworkSpawn for " + _name.Value);
 
 
         Debug.Log("OnNetworkSpawn for " + _name.Value);

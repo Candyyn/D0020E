@@ -95,6 +95,7 @@ public class PlayerNetwork : NetworkBehaviour
             else
                 SetPlayerNameClientRpc("Player");
         }
+        Debug.Log("OnNetworkSpawn for " + _name.Value);
 
         Debug.Log("Spawned " + _name.Value + " with id " + NetworkObjectId);
 

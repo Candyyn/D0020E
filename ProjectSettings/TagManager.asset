@@ -8,6 +8,7 @@ TagManager:
   - PlayerHead
   - LeftHand
   - RightHand
+  - userAvatar
   layers:
   - Default
   - TransparentFX

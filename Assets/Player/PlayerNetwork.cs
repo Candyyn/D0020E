@@ -253,6 +253,7 @@ public class PlayerNetwork : NetworkBehaviour
             //BoneRenderer boneRenderer = avatar.AddComponent<BoneRenderer>();
             Transform armature = avatar.transform.Find("Armature");
 
+
             var hand1 = RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<handController>();
             hand1.handProxy = rHand.gameObject;
             hand1.TagForHand = "RightHand";

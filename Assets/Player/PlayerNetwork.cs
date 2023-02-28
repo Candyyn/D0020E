@@ -236,7 +236,12 @@ public class PlayerNetwork : NetworkBehaviour
             //Disable animator of avatar
             avatar.GetComponent<Animator>().enabled = false;
 
-
+            //Eyes blink (random)
+            avatar.AddComponent<EyeAnimationHandler>();
+            
+            //Mouth moves when talking
+            avatar.AddComponent<VoiceHandler>();
+            
             avatar.name = IsLocalPlayer ? "LocalPlayerAvatar" : "PlayerAvatar_" + Guid.NewGuid().ToString();
 
 

@@ -36,20 +36,28 @@ public class NetworkStarter : MonoBehaviour
 
     public void StartHost()
     {
+        NetworkManager.Singleton.OnClientConnectedCallback += login;
         NetworkManager.Singleton.StartHost();
-        Login();
+        
+        //Login();
     }
 
     public void StartClient()
     {
+        NetworkManager.Singleton.OnClientConnectedCallback += login;
         NetworkManager.Singleton.StartClient();
-        Login();
+        //Login();
     }
 
 
-    public void Login()
+    void login(ulong clientId)
     {
-        //voiceManager.Login(NetworkManager.Singleton.LocalClient.ClientId.ToString());
+        voiceManager.Login(clientId.ToString());
+    }
+
+    public void Login()
+    { 
+        voiceManager.Login(NetworkManager.Singleton.LocalClient.ClientId.ToString());
     }
     
 

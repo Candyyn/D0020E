@@ -68,6 +68,24 @@ public class handController : MonoBehaviour
         if (HandJointUtils.TryGetJointPose(TrackedHandJoint.PinkyKnuckle, handSide, out pose)) SetTransform(PinkyJoints[0].transform, ProxyPinkyJoints[0].transform, pose);
         if (HandJointUtils.TryGetJointPose(TrackedHandJoint.PinkyMiddleJoint, handSide, out pose)) SetTransform(PinkyJoints[1].transform, ProxyPinkyJoints[1].transform, pose);
         if (HandJointUtils.TryGetJointPose(TrackedHandJoint.PinkyTip, handSide, out pose)) SetTransform(PinkyJoints[2].transform, ProxyPinkyJoints[2].transform, pose);
+
+        if (HandJointUtils.FindHand(handSide) == null) 
+        {
+            setNull(gameObject.transform);
+        }
+        
+    }
+
+
+    void setNull(Transform transform)
+    {
+        // Set transofmr to 0 0 0
+        transform.position = Vector3.zero;
+        // and all its children
+        foreach (Transform child in transform)
+        {
+            child.position = Vector3.zero;
+        }
     }
 
 

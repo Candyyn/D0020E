@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using Unity.Netcode;
 using VivoxUnity;
@@ -10,6 +11,10 @@ public class NetworkStarter : MonoBehaviour
 {
     VivoxVoiceManager voiceManager;
     public string channelName = "TestChannel";
+
+    public GameObject button1;
+    public GameObject button2;
+    public GameObject button3;
 
     public void Awake()
     {
@@ -32,13 +37,20 @@ public class NetworkStarter : MonoBehaviour
     public void StartServer()
     {
         NetworkManager.Singleton.StartServer();
+        //Button1
     }
 
     public void StartHost()
     {
         NetworkManager.Singleton.OnClientConnectedCallback += login;
         NetworkManager.Singleton.StartHost();
-        
+
+        var buttonHelper = button2.GetComponent<ButtonConfigHelper>();
+        buttonHelper.MainLabelText = "Host Started";
+        // Remove click event
+        //button2.GetComponent<Interactable>().OnClick.RemoveAllListeners();
+
+
         //Login();
     }
 
@@ -46,13 +58,28 @@ public class NetworkStarter : MonoBehaviour
     {
         NetworkManager.Singleton.OnClientConnectedCallback += login;
         NetworkManager.Singleton.StartClient();
+        
+        var buttonHelper = button3.GetComponent<ButtonConfigHelper>();
+        buttonHelper.MainLabelText = "Connected to host";
         //Login();
     }
 
 
     void login(ulong clientId)
     {
-        voiceManager.Login(clientId.ToString());
+        if(voiceManager.LoginState == LoginState.LoggedIn)
+        {
+            return;
+        }
+        
+        try
+        {
+            
+            voiceManager.Login("Anuser_" + clientId.ToString());
+        } catch (Exception e)
+        {
+            Debug.Log("Exception: " + e.Message);
+        }
     }
 
     public void Login()

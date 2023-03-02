@@ -195,6 +195,9 @@ public class PlayerNetwork : NetworkBehaviour
 
         if (IsOwner && IsLocalPlayer)
         {
+            
+            var Head = RecursiveFindChild(armature, "Head").gameObject.AddComponent<headTracking>();
+            
             var hand1 = RecursiveFindChild(armature, "RightHand").gameObject.AddComponent<handController>();
             hand1.handProxy = rHand.gameObject;
             hand1.TagForHand = "RightHand";

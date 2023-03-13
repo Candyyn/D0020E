@@ -26,4 +26,4 @@ This project aims to create a 3D mixed reality environment for physiotherapy ses
 1. Clone the repository to your local machine.
 2. Open the project in Unity.
 3. Connect the Hololens 2 to your computer.
-4. Build and run the project on the Hololens 2.
+4. Either use [Holographic remoting](https://learn.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/mrtk2/features/tools/holographic-remoting?view=mrtkunity-2022-05) to debug the project or build and run the project on the Hololens 2.
